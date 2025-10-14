@@ -53,6 +53,9 @@
                 <div class="invalid-feedback" id="confirmPasswordError"></div>
             </div>
             <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+          <div class="mt-3 text-center">
+                <button type="button" class="btn btn-secondary" id="returnHome">Return to Home</button>
+          </div>
         </form>
     </div>
     <!-- Bootstrap JS (optional, for interactivity) -->
@@ -131,6 +134,9 @@
             const errorDiv = document.getElementById(id === 'confirm-password' ? 'confirmPasswordError' : id + 'Error');
             errorDiv.textContent = '';
         });
+    });
+    document.getElementById('returnHome').addEventListener('click', function(){
+       window.location.href="index.html";
     });
     </script>
 </body>

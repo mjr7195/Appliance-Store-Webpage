@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <!-- html and css, Author: Marcos Ruiz-->
+    <!-- javascript and minor html changes by Alex Hammond-->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Shopper Management</title>
@@ -54,7 +55,7 @@
             </div>
         </header>
 
-        <form class="row g-3" novalidate>
+        <form id="ShopperForm" class="row g-3" novalidate>
             <div class="col-12 col-md-6">
                 <label for="email" class="form-label required">Shopper Email</label>
                 <input id="email" name="email" type="email" class="form-control" placeholder="joe@test.com" required>
@@ -72,7 +73,7 @@
 
             <div class="col-12 col-md-4">
                 <label for="age" class="form-label required">Age</label>
-                <input id="age" name="age" type="number" class="form-control" min="0" placeholder="e.g. 34" required>
+                <input id="age" name="age" type="number" class="form-control" min="0" max="150" placeholder="e.g. 34" required>
             </div>
 
             <div class="col-12 col-md-4">
@@ -83,8 +84,52 @@
             <div class="col-12">
                 <button type="submit" class="btn btn-primary">Submit Shopper</button>
             </div>
+            <div class="col-12 d-flex justify-content-between">
+                <button type="button" class="btn btn-secondary" id="returnHome">Return to Home</button>
+            </div>
         </form>
     </div>
+    <script>
+        //script to check if fields are properly filled before submission
+        document.getElementById('ShopperForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            let formValid = true;
+            const requiredFields = this.querySelectorAll('[required]');
 
+            requiredFields.forEach(field => {
+                if (field.value.trim() === '') {
+                    formValid = false;
+                    field.classList.add('is-invalid');
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+            if (!formValid) {
+                alert('Please fill out all fields before submitting');
+            } else {
+                alert('Form submitted successfully.');
+                this.submit();
+            }
+        });
+        // Checks to ensure phone textbox is only numbers and has a limit of 10 characters
+        const phoneField = document.getElementById('phone');
+        phoneField.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '').slice(0, 10);
+        });
+        // Checks to ensure age textbox is only numbers and can only range between 0 - 150
+        const ageField = document.getElementById('age');
+        ageField.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '')
+            if (this.value > 150) {
+                this.value = 150;
+            } else if (this.value < 0) {
+                this.value = 0;
+            }
+        });
+        // takes user to home page on click
+        document.getElementById('returnHome').addEventListener('click', function(){
+            window.location.href = 'index.html';
+        });
+    </script>
 </body>
 </html>
