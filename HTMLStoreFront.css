@@ -101,8 +101,9 @@ footer a:hover {
 
 #BIG{
   position: relative;
-  right: 500px;
-  height: 100px;
+  right: 700px;
+  height: -200px;
+  color: red;
 }
 
 .SS{
