@@ -103,26 +103,27 @@ footer a:hover {
  color:red;
 }
 
-.SS{
-  height: 500px;
-  width: 500px;
-}
 
 #ss1{
   position: relative;
   right: 500px;
   top: 100px;
-}
+  height: 100px;
+  width: 100px;
 
 #ss2{
   position: relative;
   right: 700px;
   top: -100px;
+   height: 100px;
+  width: 100px;
 }
 
 #ss3{
    position: relative;
   right: 700px;
   top: -200px;
+   height: 100px;
+  width: 100px;
 }
 
