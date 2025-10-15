@@ -116,5 +116,37 @@ footer a:hover {
 }
 
 #ss1{
-  flex: 1;
+  position: relative;
+  right: 500px;
+  top: 100px;
+}
+
+#ss2{
+  position: relative;
+  right: 700px;
+  top: -100px;
+}
+
+#ss3{
+   position: relative;
+  right: 700px;
+  top: -200px;
+}
+
+#ss4{
+   position: relative;
+  right: 700px;
+  top: -300px;
+}
+
+#ss5{
+   position: relative;
+  right: 600px;
+  top: -300px;
+}
+
+#ss6{
+   position: relative;
+  right: 900px;
+  top: -100px;
 }
