@@ -101,9 +101,10 @@ footer a:hover {
 
 #BIG{
   position: relative;
-  right: 700px;
-  height: -200px;
-  color: red;
+  right: 500px;
+  height: 100px;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  color:red ;
 }
 
 .SS{
