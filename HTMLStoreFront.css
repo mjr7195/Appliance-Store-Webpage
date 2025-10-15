@@ -99,6 +99,12 @@ footer a:hover {
   text-decoration: underline;
 }
 
+#BIG{
+  position: relative;
+  right: 500px;
+  height: 100px;
+}
+
 .SS{
   height: 500px;
   width: 500px;
