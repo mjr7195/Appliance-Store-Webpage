@@ -98,3 +98,12 @@ footer a {
 footer a:hover {
   text-decoration: underline;
 }
+
+.SS{
+  height: 500px;
+  width: 500px;
+}
+
+#ss1{
+  flex: 1;
+}
