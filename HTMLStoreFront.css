@@ -105,6 +105,9 @@ footer a:hover {
   height: 100px;
   font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
   color:red ;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
 }
 
 .SS{
