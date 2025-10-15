@@ -9,6 +9,7 @@
     <style>
         body {
             background: #f4f4f440;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         .signup-container {
             max-width: 400px;
@@ -25,13 +26,53 @@
             text-align: center;
             color: #2c3e50;
         }
-    
+        .alert {
+            display: none;
+        }
+        .form-control:focus {
+            border-color: #4dabf7;
+            box-shadow: 0 0 0 0.2rem rgba(77, 171, 247, 0.25);
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .download-info {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e9f7ef;
+            border-radius: 5px;
+            border: 1px solid #c3e6cb;
+            font-size: 14px;
+            color: #155724;
+            text-align: center;
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="signup-container">
+        <div class="logo">
+            <div class="logo-text">ApplianceStore</div>
+        </div>
         <h2 class="signup-title">Create Your Account</h2>
-    <form id="signupForm" novalidate>
+        
+        <!-- Success Alert -->
+        <div class="alert alert-success" role="alert" id="successAlert">
+            Account created successfully! Your data has been saved and users.json is downloading.
+        </div>
+        
+        <!-- Error Alert -->
+        <div class="alert alert-danger" role="alert" id="errorAlert">
+            There was an error creating your account. Please try again.
+        </div>
+        
+        <form id="signupForm" novalidate>
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
                 <input type="text" class="form-control" id="username" placeholder="Enter username" required>
@@ -52,100 +93,115 @@
                 <input type="password" class="form-control" id="confirm-password" placeholder="Confirm password" required>
                 <div class="invalid-feedback" id="confirmPasswordError"></div>
             </div>
-            <button type="submit" class="btn btn-primary w-100">Sign Up</button>
-          <div class="mt-3 text-center">
+            <button type="submit" class="btn btn-primary w-100" id="submitBtn">Sign Up</button>
+            <div class="download-info" id="downloadInfo">
+                Your users.json file is downloading automatically.
+            </div>
+            <div class="mt-3 text-center">
                 <button type="button" class="btn btn-secondary" id="returnHome">Return to Home</button>
-          </div>
+            </div>
         </form>
     </div>
-    <!-- Bootstrap JS (optional, for interactivity) -->
+    
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
-    // Initial users data (from your JSON file)
-    const initialUsers = {
-        "users": [
-            {
-                "username": "alice123",
-                "email": "alice@example.com",
-                "password": "p@ssw0rd!"
-            },
-            {
-                "username": "bob456",
-                "email": "bob@example.org",
-                "password": "S3cur3P@ss"
+        // Initial users data (from your JSON file)
+        const initialUsers = {
+            "users": [
+                {
+                    "username": "alice123",
+                    "email": "alice@example.com",
+                    "password": "p@ssw0rd!"
+                },
+                {
+                    "username": "bob456",
+                    "email": "bob@example.org",
+                    "password": "S3cur3P@ss"
+                }
+            ]
+        };
+
+        // Initialize users in localStorage if not already present
+        if (!localStorage.getItem('users')) {
+            localStorage.setItem('users', JSON.stringify(initialUsers));
+        }
+
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            let valid = true;
+
+            // Get fields
+            const username = document.getElementById('username');
+            const email = document.getElementById('email');
+            const password = document.getElementById('password');
+            const confirmPassword = document.getElementById('confirm-password');
+
+            // Error elements
+            const usernameError = document.getElementById('usernameError');
+            const emailError = document.getElementById('emailError');
+            const passwordError = document.getElementById('passwordError');
+            const confirmPasswordError = document.getElementById('confirmPasswordError');
+
+            // Reset errors and alerts
+            [username, email, password, confirmPassword].forEach(input => {
+                input.classList.remove('is-invalid');
+            });
+            [usernameError, emailError, passwordError, confirmPasswordError].forEach(el => {
+                el.textContent = '';
+            });
+            
+            // Hide alerts
+            document.getElementById('successAlert').style.display = 'none';
+            document.getElementById('errorAlert').style.display = 'none';
+            document.getElementById('downloadInfo').style.display = 'none';
+
+            // Username validation
+            if (!username.value.trim()) {
+                valid = false;
+                username.classList.add('is-invalid');
+                usernameError.textContent = 'Username is required.';
             }
-        ]
-    };
 
-    // Initialize users in localStorage if not already present
-    if (!localStorage.getItem('users')) {
-        localStorage.setItem('users', JSON.stringify(initialUsers));
-    }
-        
-    document.getElementById('signupForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        let valid = true;
+            // Email validation
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email.value.trim()) {
+                valid = false;
+                email.classList.add('is-invalid');
+                emailError.textContent = 'Email is required.';
+            } else if (!emailPattern.test(email.value.trim())) {
+                valid = false;
+                email.classList.add('is-invalid');
+                emailError.textContent = 'Please enter a valid email (e.g. joe@test.com).';
+            }
 
-        // Get fields
-        const username = document.getElementById('username');
-        const email = document.getElementById('email');
-        const password = document.getElementById('password');
-        const confirmPassword = document.getElementById('confirm-password');
+            // Password validation
+            if (!password.value) {
+                valid = false;
+                password.classList.add('is-invalid');
+                passwordError.textContent = 'Password is required.';
+            } else if (password.value.length < 8) {
+                valid = false;
+                password.classList.add('is-invalid');
+                passwordError.textContent = 'Password must be at least 8 characters long.';
+            }
 
-        // Error elements
-        const usernameError = document.getElementById('usernameError');
-        const emailError = document.getElementById('emailError');
-        const passwordError = document.getElementById('passwordError');
-        const confirmPasswordError = document.getElementById('confirmPasswordError');
+            // Confirm Password validation
+            if (!confirmPassword.value) {
+                valid = false;
+                confirmPassword.classList.add('is-invalid');
+                confirmPasswordError.textContent = 'Please confirm your password.';
+            } else if (password.value && confirmPassword.value !== password.value) {
+                valid = false;
+                confirmPassword.classList.add('is-invalid');
+                confirmPasswordError.textContent = 'Passwords do not match.';
+            }
 
-        // Reset errors
-        [username, email, password, confirmPassword].forEach(input => {
-            input.classList.remove('is-invalid');
-        });
-        [usernameError, emailError, passwordError, confirmPasswordError].forEach(el => {
-            el.textContent = '';
-        });
-
-        // Username validation
-        if (!username.value.trim()) {
-            valid = false;
-            username.classList.add('is-invalid');
-            usernameError.textContent = 'Username is required.';
-        }
-
-        // Email validation
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!email.value.trim()) {
-            valid = false;
-            email.classList.add('is-invalid');
-            emailError.textContent = 'Email is required.';
-        } else if (!emailPattern.test(email.value.trim())) {
-            valid = false;
-            email.classList.add('is-invalid');
-            emailError.textContent = 'Please enter a valid email (e.g. joe@test.com).';
-        }
-
-        // Password validation
-        if (!password.value) {
-            valid = false;
-            password.classList.add('is-invalid');
-            passwordError.textContent = 'Password is required.';
-        }
-
-        // Confirm Password validation
-        if (!confirmPassword.value) {
-            valid = false;
-            confirmPassword.classList.add('is-invalid');
-            confirmPasswordError.textContent = 'Please confirm your password.';
-        } else if (password.value && confirmPassword.value !== password.value) {
-            valid = false;
-            confirmPassword.classList.add('is-invalid');
-            confirmPasswordError.textContent = 'Passwords do not match.';
-        }
-
-        // If valid, submit the form (for demo, just alert)
-        if (valid) {
-            try {
+            // If valid, save user data and download JSON
+            if (valid) {
+                try {
                     // Get existing users from localStorage
                     const usersData = JSON.parse(localStorage.getItem('users'));
                     
@@ -200,19 +256,22 @@
                 }
             }
         });
-    // Remove red border and error when user corrects input
-    ['username', 'email', 'password', 'confirm-password'].forEach(function(id) {
-        document.getElementById(id).addEventListener('input', function() {
-            this.classList.remove('is-invalid');
-            const errorDiv = document.getElementById(id === 'confirm-password' ? 'confirmPasswordError' : id + 'Error');
-            errorDiv.textContent = '';
-        });
-    });
-    document.getElementById('returnHome').addEventListener('click', function(){
-       window.location.href="index.html";
-    });
 
-    // Function to download user data as JSON
+        // Remove red border and error when user corrects input
+        ['username', 'email', 'password', 'confirm-password'].forEach(function(id) {
+            document.getElementById(id).addEventListener('input', function() {
+                this.classList.remove('is-invalid');
+                const errorDiv = document.getElementById(id === 'confirm-password' ? 'confirmPasswordError' : id + 'Error');
+                errorDiv.textContent = '';
+            });
+        });
+
+        // Return to home button
+        document.getElementById('returnHome').addEventListener('click', function(){
+            window.location.href = "index.html";
+        });
+
+        // Function to download user data as JSON
         function downloadUserData() {
             const usersData = JSON.parse(localStorage.getItem('users'));
             const dataStr = JSON.stringify(usersData, null, 2);
