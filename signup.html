@@ -145,9 +145,61 @@
 
         // If valid, submit the form (for demo, just alert)
         if (valid) {
-            this.submit();
-        }
-    });
+            try {
+                    // Get existing users from localStorage
+                    const usersData = JSON.parse(localStorage.getItem('users'));
+                    
+                    // Check if username or email already exists
+                    const usernameExists = usersData.users.some(user => user.username === username.value.trim());
+                    const emailExists = usersData.users.some(user => user.email === email.value.trim());
+                    
+                    if (usernameExists) {
+                        username.classList.add('is-invalid');
+                        usernameError.textContent = 'Username already exists.';
+                        return;
+                    }
+                    
+                    if (emailExists) {
+                        email.classList.add('is-invalid');
+                        emailError.textContent = 'Email already exists.';
+                        return;
+                    }
+                    
+                    // Create new user object
+                    const newUser = {
+                        username: username.value.trim(),
+                        email: email.value.trim(),
+                        password: password.value
+                    };
+                    
+                    // Add new user to users array
+                    usersData.users.push(newUser);
+                    
+                    // Save updated users back to localStorage
+                    localStorage.setItem('users', JSON.stringify(usersData));
+                    
+                    // Show success message
+                    document.getElementById('successAlert').style.display = 'block';
+                    document.getElementById('downloadInfo').style.display = 'block';
+                    
+                    // Automatically download the JSON file
+                    downloadUserData();
+                    
+                    // Reset the form after a short delay
+                    setTimeout(() => {
+                        document.getElementById('signupForm').reset();
+                        document.getElementById('downloadInfo').style.display = 'none';
+                    }, 3000);
+                    
+                    console.log('User added successfully:', newUser);
+                    console.log('All users:', usersData.users);
+                    
+                } catch (error) {
+                    console.error('Error saving user data:', error);
+                    document.getElementById('errorAlert').style.display = 'block';
+                }
+            }
+        });
     // Remove red border and error when user corrects input
     ['username', 'email', 'password', 'confirm-password'].forEach(function(id) {
         document.getElementById(id).addEventListener('input', function() {
