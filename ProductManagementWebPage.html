@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- html and css, Author: Marcos Ruiz-->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Product Management</title>
+    <!-- Bootstrap CSS for layout -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        /* Product Management page */
+        :root{
+            --bg:#f8f9fb;
+            --card:#ffffff;
+            --muted:#6c757d;
+            --accent:#0d6efd;
+        }
+        html,body{height:100%;}
+        body{
+            margin:0;
+            font-family:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            background:var(--bg);
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
+            padding:28px 12px;
+        }
+        .card-area{
+            max-width:920px;
+            margin:0 auto;
+            background:linear-gradient(180deg,var(--card),#fbfbfd);
+            border-radius:10px;
+            padding:22px;
+            box-shadow:0 8px 30px rgba(17,24,39,0.06);
+            border:1px solid #e9eef5;
+        }
+        h1{font-size:1.45rem;margin-bottom:4px}
+        .lead{color:var(--muted);margin-bottom:10px}
+
+        label.required::after{content:" *";color:#d63384}
+
+        /* Form layout tweaks */
+        .form-control:focus{box-shadow:0 0 0 0.15rem rgba(13,110,253,0.12);border-color:var(--accent)}
+    </style>
+</head>
+<body>
+
+    <div class = "card-area">
+        <header class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+                <h1>Product Management:</h1>
+            </div>
+        </header>
+
+        <form id="ProductForm" class="row g-3" novalidate>
+            <div class="col-12 col-md-6">
+                <label for="productID" class="form-label required">Product ID</label>
+                <input type="number" class="form-control" id="productID" placeholder="Enter product ID" required>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label for="productDescription" class="form-label required">Product Description</label>
+                <input type="text" class="form-control" id="productDescription" placeholder="Enter product description" required>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <label for="productCategory" class="form-label required">Product Category</label>
+                <select id="productCategory" class="form-control" required>
+                    <option value="">-- Select Category --</option>
+                    <option value="Refrigerators">Refrigerators</option>
+                    <option value="Washers">Washers</option>
+                    <option value="Dryers">Dryers</option>
+                    <option value="Microwaves">Microwaves</option>
+                    <option value="Accessories">Accessories</option>
+                </select>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label for="productUnitofMeasure" class="form-label required">Unit of Measure</label>
+                <select id="productUnitofMeasure" class="form-control" required>
+                    <option value="">-- Select UoM --</option>
+                    <option value="Each">Each</option>
+                    <option value="Box">Box</option>
+                    <option value="Pallet">Pallet</option>
+                    <option value="Set">Set</option>
+                </select>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label for="productPrice" class="form-label required">Product Price</label>
+                <input type="number" class="form-control" id="productPrice" placeholder="e.g. 10.00" required>
+            </div>
+
+            <div class="col-12 col-md-2">
+                <label for="productWeight" class="form-label">Product Weight (lbs)</label>
+                <input type="number" class="form-control" id="productWeight" placeholder= "e.g. 10">
+            </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Submit New Product</button>
+            </div>
+            
+            <div class="col-12 d-flex justify-content-between">
+                <button type="button" class="btn btn-secondary" id="returnHome">Return to Home</button>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>
