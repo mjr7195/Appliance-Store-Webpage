@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <!-- html and css, Author: Marcos Ruiz-->
+    <!-- Javascript for valid checking and product creation by Alex Hammond -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Product Management</title>
@@ -57,6 +58,10 @@
                 <label for="productID" class="form-label required">Product ID</label>
                 <input type="number" class="form-control" id="productID" placeholder="Enter product ID" required>
             </div>
+            <div class="col-12 col-md-6">
+                <label for="productName" class="form-label required">Product Name</label>
+                <input type="text" class="form-control" id="productName" placeholder="Enter Product Name" required>
+            </div>
 
             <div class="col-12 col-md-6">
                 <label for="productDescription" class="form-label required">Product Description</label>
@@ -88,23 +93,104 @@
 
             <div class="col-12 col-md-3">
                 <label for="productPrice" class="form-label required">Product Price</label>
-                <input type="number" class="form-control" id="productPrice" placeholder="e.g. 10.00" required>
+                <input type="text" class="form-control" id="productPrice" placeholder="e.g. 10.00" required>
             </div>
 
             <div class="col-12 col-md-2">
                 <label for="productWeight" class="form-label">Product Weight (lbs)</label>
-                <input type="number" class="form-control" id="productWeight" placeholder= "e.g. 10">
+                <input type="text" class="form-control" id="productWeight" placeholder= "e.g. 10">
             </div>
 
             <div class="col-12">
                 <button type="submit" class="btn btn-primary">Submit New Product</button>
             </div>
-            
+
             <div class="col-12 d-flex justify-content-between">
                 <button type="button" class="btn btn-secondary" id="returnHome">Return to Home</button>
             </div>
         </form>
     </div>
+    <script>
+        // Go back home
+        document.getElementById('returnHome').addEventListener('click', function () {
+            window.location.href = 'index.html';
+        });
+        const productIDField = document.getElementById('productID');
+        productIDField.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '')
+            if (this.value < 1) {
+                this.value = 1;
+            }
+        });
+        const productPriceField = document.getElementById('productPrice');
+        productPriceField.addEventListener('input', function() {
+            this.value = this.value
+                .replace(/[^0-9.]/g, '')
+                .replace(/(\..*?)\..*/g, '$1');
+            if (this.value < 0) {
+                this.value = 0;
+            }
+            if (this.value.includes('.')) {
+                const [intPart, decPart] = this.value.split('.');
+                this.value = intPart + '.' + decPart.slice(0, 2);
+            }
+        });
+        const productWeightField = document.getElementById('productWeight');
+        productWeightField.addEventListener('input', function() {
+            this.value = this.value
+                .replace(/[^0-9.]/g, '')
+                .replace(/(\..*?)\..*/g, '$1');
+            if (this.value < 0) {
+                this.value = 0;
+            }
+            if (this.value.includes('.')) {
+                const [intPart, decPart] = this.value.split('.');
+                this.value = intPart + '.' + decPart.slice(0, 2);
+            }
+        });
+
+        document.getElementById('ProductForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const product = {
+                id: document.getElementById('productID').value.trim(),
+                name: document.getElementById('productName').value.trim(),
+                description: document.getElementById('productDescription').value.trim(),
+                category: document.getElementById('productCategory').value,
+                uom: document.getElementById('productUnitofMeasure').value,
+                price: document.getElementById('productPrice').value.trim(),
+                weight: document.getElementById('productWeight').value.trim()
+            };
+
+            const requiredFields = ['id', 'description', 'category', 'uom', 'price'];
+
+            for (const field of requiredFields) {
+                if (product[field] === '' || product[field] === null) {
+                    alert('Please fill in all required fields.');
+                    return;
+                }
+            }
+
+            // Retrieve existing products from localStorage or create new array
+            let products = JSON.parse(localStorage.getItem('products')) || [];
+
+            const duplicate = products.some(p => p.id === product.id);
+            if (duplicate) {
+                alert('This Product ID is already in use. Please choose a different ID.');
+                return;
+            }
+
+            // Add new product
+            products.push(product);
+
+            // Save back to localStorage
+            localStorage.setItem('products', JSON.stringify(products));
+
+            // Confirm and reset form
+            alert('Product saved successfully!');
+            this.reset();
+        });
+    </script>
 
 </body>
 </html>
