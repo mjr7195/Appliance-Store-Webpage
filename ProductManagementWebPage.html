@@ -129,86 +129,105 @@
         </section>
     </div>
     <script>
-        // Go back home
-        document.getElementById('returnHome').addEventListener('click', function () {
-            window.location.href = 'index.html';
-        });
-        const productIDField = document.getElementById('productID');
-        productIDField.addEventListener('input', function() {
-            this.value = this.value.replace(/\D/g, '')
-            if (this.value < 1) {
-                this.value = 1;
-            }
-        });
-        const productPriceField = document.getElementById('productPrice');
-        productPriceField.addEventListener('input', function() {
-            this.value = this.value
-                .replace(/[^0-9.]/g, '')
-                .replace(/(\..*?)\..*/g, '$1');
-            if (this.value < 0) {
-                this.value = 0;
-            }
-            if (this.value.includes('.')) {
-                const [intPart, decPart] = this.value.split('.');
-                this.value = intPart + '.' + decPart.slice(0, 2);
-            }
-        });
-        const productWeightField = document.getElementById('productWeight');
-        productWeightField.addEventListener('input', function() {
-            this.value = this.value
-                .replace(/[^0-9.]/g, '')
-                .replace(/(\..*?)\..*/g, '$1');
-            if (this.value < 0) {
-                this.value = 0;
-            }
-            if (this.value.includes('.')) {
-                const [intPart, decPart] = this.value.split('.');
-                this.value = intPart + '.' + decPart.slice(0, 2);
-            }
-        });
+    // Go back home
+    document.getElementById('returnHome').addEventListener('click', function () {
+        window.location.href = 'index.html';
+    });
 
-        document.getElementById('ProductForm').addEventListener('submit', function (e) {
-            e.preventDefault();
+    const productIDField = document.getElementById('productID');
+    productIDField.addEventListener('input', function () {
+        this.value = this.value.replace(/\D/g, '');
+        if (this.value < 1) this.value = 1;
+    });
 
-            const product = {
-                id: document.getElementById('productID').value.trim(),
-                name: document.getElementById('productName').value.trim(),
-                description: document.getElementById('productDescription').value.trim(),
-                category: document.getElementById('productCategory').value,
-                uom: document.getElementById('productUnitofMeasure').value,
-                price: document.getElementById('productPrice').value.trim(),
-                weight: document.getElementById('productWeight').value.trim()
-            };
+    const productPriceField = document.getElementById('productPrice');
+    productPriceField.addEventListener('input', function () {
+        this.value = this.value
+            .replace(/[^0-9.]/g, '')
+            .replace(/(\..*?)\..*/g, '$1');
+        if (this.value < 0) this.value = 0;
+        if (this.value.includes('.')) {
+            const [intPart, decPart] = this.value.split('.');
+            this.value = intPart + '.' + decPart.slice(0, 2);
+        }
+    });
 
-            const requiredFields = ['id', 'description', 'category', 'uom', 'price'];
+    const productWeightField = document.getElementById('productWeight');
+    productWeightField.addEventListener('input', function () {
+        this.value = this.value
+            .replace(/[^0-9.]/g, '')
+            .replace(/(\..*?)\..*/g, '$1');
+        if (this.value < 0) this.value = 0;
+        if (this.value.includes('.')) {
+            const [intPart, decPart] = this.value.split('.');
+            this.value = intPart + '.' + decPart.slice(0, 2);
+        }
+    });
 
-            for (const field of requiredFields) {
-                if (product[field] === '' || product[field] === null) {
-                    alert('Please fill in all required fields.');
-                    return;
-                }
-            }
+    // ---------- Submit new product ----------
+    document.getElementById('ProductForm').addEventListener('submit', function (e) {
+        e.preventDefault();
 
-            // Retrieve existing products from localStorage or create new array
-            let products = JSON.parse(localStorage.getItem('products')) || [];
+        const product = {
+            id: document.getElementById('productID').value.trim(),
+            name: document.getElementById('productName').value.trim(),
+            description: document.getElementById('productDescription').value.trim(),
+            category: document.getElementById('productCategory').value,
+            uom: document.getElementById('productUnitofMeasure').value,
+            price: document.getElementById('productPrice').value.trim(),
+            weight: document.getElementById('productWeight').value.trim()
+        };
 
-            const duplicate = products.some(p => p.id === product.id);
-            if (duplicate) {
-                alert('This Product ID is already in use. Please choose a different ID.');
+        const requiredFields = ['id', 'description', 'category', 'uom', 'price'];
+        for (const field of requiredFields) {
+            if (product[field] === '' || product[field] === null) {
+                alert('Please fill in all required fields.');
                 return;
             }
+        }
 
-            // Add new product
-            products.push(product);
+        // Retrieve existing products from localStorage or start a fresh array
+        let products = JSON.parse(localStorage.getItem('products')) || [];
 
-            // Save back to localStorage
-            localStorage.setItem('products', JSON.stringify(products));
+        // Prevent duplicate IDs
+        const duplicate = products.some(p => p.id === product.id);
+        if (duplicate) {
+            alert('This Product ID is already in use. Please choose a different ID.');
+            return;
+        }
 
-            // Confirm and reset form
-            alert('Product saved successfully!');
-            this.reset();
-        });
-    </script>
+        // Store the new product
+        products.push(product);
+        localStorage.setItem('products', JSON.stringify(products));
+
+        // ----- NEW: show JSON after save -----
+        alert('Product saved successfully!');
+        document.getElementById('resultArea').textContent = JSON.stringify(product, null, 2);
+        e.target.reset();   // clear the form
+    });
+
+    // ---------- Search ----------
+    document.getElementById('searchBtn').addEventListener('click', function () {
+        const searchId = document.getElementById('searchProductID').value.trim();
+
+        if (!searchId) {
+            document.getElementById('searchResult').textContent = 'Please enter a Product ID.';
+            return;
+        }
+
+        const products = JSON.parse(localStorage.getItem('products')) || [];
+        const found = products.find(p => p.id === searchId);
+
+        if (found) {
+            document.getElementById('resultArea').textContent = JSON.stringify(found, null, 2);
+            document.getElementById('searchResult').textContent = '';
+        } else {
+            document.getElementById('resultArea').textContent = '';
+            document.getElementById('searchResult').textContent = `No product found with ID ${searchId}.`;
+        }
+    });
+    
+</script>
 
 </body>
 </html>
