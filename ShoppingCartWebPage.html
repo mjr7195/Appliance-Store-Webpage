@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<!--HTML, CSS, and Bootstrap, Author: Marcos Ruiz-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Shopping Cart - Appliance World</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      body{background:#f8f9fb;padding:24px;font-family:system-ui, -apple-system, "Segoe UI", Roboto}
+      .card{max-width:980px;margin:0 auto}
+      .cart-table td, .cart-table th{vertical-align:middle}
+      .qty-input{width:80px}
+      .muted-small{font-size:.9rem;color:#6c757d}
+    </style>
+  </head>
+  <body>
+    <div class="card p-4 shadow-sm">
+      <h1 class="h4 mb-3">Shopping Cart</h1>
+
+      <!-- Add product area: select product from existing products and add to cart -->
+      <div class="row g-2 align-items-end mb-4">
+        <div class="col-md-6">
+          <label class="form-label">Select Product</label>
+            <select id="productSelect" class="form-select">
+              <option value="">-- choose a product --</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Quantity</label>
+          <input id="addQty" type="number" class="form-control" value="1" min="1">
+        </div>
+        <div class="col-md-2">
+          <button id="addBtn" class="btn btn-primary w-100">Add</button>
+        </div>
+        <div class="col-md-2 text-end muted-small">Items added will appear in the table below.</div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover cart-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Product ID</th>
+              <th class="text-end">Price</th>
+              <th class="text-center">Quantity</th>
+              <th class="text-end">Total</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="cartBody">
+            <tr id="emptyRow"><td colspan="6" class="text-center text-muted">No items in cart.</td></tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4" class="text-end"><strong>Grand Total</strong></td>
+              <td class="text-end"><strong id="grandTotal">$0.00</strong></td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div class="d-flex justify-content-between">
+        <button id="clearCart" class="btn btn-outline-secondary">Clear Cart</button>
+        <button id="checkoutBtn" class="btn btn-success">Checkout</button>
+      </div>
+    </div>
+
+  </body>
+</html>
