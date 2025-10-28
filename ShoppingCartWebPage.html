@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <!--HTML, CSS, and Bootstrap, Author: Marcos Ruiz-->
+<!--Javascript and minor HTML done by: Alex Hammond-->
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,6 +17,9 @@
   </head>
   <body>
     <div class="card p-4 shadow-sm">
+        <div class="mb-3">
+            <a href="index.html" class="btn btn-outline-primary">&larr; Return Home</a>
+        </div>
       <h1 class="h4 mb-3">Shopping Cart</h1>
 
       <!-- Add product area: select product from existing products and add to cart -->
@@ -66,6 +70,39 @@
         <button id="checkoutBtn" class="btn btn-success">Checkout</button>
       </div>
     </div>
+  <script>
+      const QuantityField = document.getElementById('addQty');
+      QuantityField.addEventListener('input', function () {
+          this.value = this.value.replace(/\D/g, '');
+          if (this.value < 1) this.value = 1;
+      });
+      document.addEventListener("DOMContentLoaded", () => {
+          const select = document.getElementById("productSelect");
+          const storedProducts = localStorage.getItem("products");
 
+          if (storedProducts) {
+              try {
+                  const products = JSON.parse(storedProducts);
+
+                  // Clear any existing options (keep placeholder)
+                  select.innerHTML = '<option value="">-- choose a product --</option>';
+
+                  // Add each product as an option
+                  products.forEach(product => {
+                      const option = document.createElement("option");
+                      // Use product ID as value so you can easily reference it later
+                      option.value = product.id;
+                      // Display name and price for user clarity
+                      option.textContent = `${product.name} - $${parseFloat(product.price).toFixed(2)}`;
+                      select.appendChild(option);
+                  });
+              } catch (err) {
+                  console.error("Error parsing products from localStorage:", err);
+              }
+          } else {
+              console.warn("No products found in localStorage.");
+          }
+      });
+  </script>
   </body>
 </html>
