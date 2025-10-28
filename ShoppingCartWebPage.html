@@ -103,6 +103,68 @@
               console.warn("No products found in localStorage.");
           }
       });
+      // Handle Add button
+      document.getElementById("addBtn").addEventListener("click", () => {
+          const select = document.getElementById("productSelect");
+          const qtyInput = document.getElementById("addQty");
+          const cartBody = document.getElementById("cartBody");
+          const emptyRow = document.getElementById("emptyRow");
+          const grandTotalEl = document.getElementById("grandTotal");
+
+          const storedProducts = JSON.parse(localStorage.getItem("products") || "[]");
+          const productId = select.value;
+          const qty = parseInt(qtyInput.value);
+
+          if (!productId || qty < 1) return;
+
+          const product = storedProducts.find(p => p.id == productId);
+          if (!product) return;
+
+          // Remove "No items in cart" row
+          if (emptyRow) emptyRow.remove();
+
+          const price = parseFloat(product.price);
+          const total = price * qty;
+
+          // Create new table row
+          const row = document.createElement("tr");
+          row.innerHTML = `
+              <td>${product.name}</td>
+              <td>${product.id}</td>
+              <td class="text-end">$${price.toFixed(2)}</td>
+              <td class="text-center">${qty}</td>
+              <td class="text-end">$${total.toFixed(2)}</td>
+              <td class="text-end">
+                  <button class="btn btn-sm btn-outline-danger removeBtn">Remove</button>
+              </td>
+          `;
+
+          cartBody.appendChild(row);
+
+          // Update grand total
+          updateGrandTotal();
+
+          // Add remove button functionality
+          row.querySelector(".removeBtn").addEventListener("click", () => {
+              row.remove();
+              updateGrandTotal();
+              if (!cartBody.children.length) {
+                  cartBody.innerHTML = `<tr id="emptyRow"><td colspan="6" class="text-center text-muted">No items in cart.</td></tr>`;
+              }
+          });
+
+          function updateGrandTotal() {
+              let totalSum = 0;
+              cartBody.querySelectorAll("tr").forEach(tr => {
+                  const cell = tr.querySelector("td:nth-child(5)");
+                  if (cell && cell.textContent.startsWith("$")) {
+                      totalSum += parseFloat(cell.textContent.replace("$", ""));
+                  }
+              });
+              grandTotalEl.textContent = `$${totalSum.toFixed(2)}`;
+          }
+      });
+
   </script>
   </body>
 </html>
