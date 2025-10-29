@@ -2,6 +2,7 @@
 <html lang="en">
 <!--HTML, CSS, and Bootstrap, Author: Marcos Ruiz-->
 <!--Javascript and minor HTML done by: Alex Hammond-->
+<!--JSON file display and storage done by: Juan Crespo Jr.-->
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,6 +14,18 @@
       .cart-table td, .cart-table th{vertical-align:middle}
       .qty-input{width:80px}
       .muted-small{font-size:.9rem;color:#6c757d}
+      #orderDetails {
+        margin-top: 30px;
+      }
+      #resultArea {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 5px;
+        padding: 15px;
+        margin-top: 10px;
+        max-height: 300px;
+        overflow-y: auto;
+      }
     </style>
   </head>
   <body>
@@ -69,13 +82,21 @@
         <button id="clearCart" class="btn btn-outline-secondary">Clear Cart</button>
         <button id="checkoutBtn" class="btn btn-success">Checkout</button>
       </div>
+
+      <!-- Order Details JSON Display Section -->
+      <section id="orderDetails" class="mt-4" style="display: none;">
+        <h3 class="h5">Order Details (JSON)</h3>
+        <pre id="resultArea" class="bg-light p-3 border rounded">Order details will appear here after checkout</pre>
+      </section>
     </div>
-  <script>
+
+    <script>
       const QuantityField = document.getElementById('addQty');
       QuantityField.addEventListener('input', function () {
           this.value = this.value.replace(/\D/g, '');
           if (this.value < 1) this.value = 1;
       });
+
       document.addEventListener("DOMContentLoaded", () => {
           const select = document.getElementById("productSelect");
           const storedProducts = localStorage.getItem("products");
@@ -103,6 +124,7 @@
               console.warn("No products found in localStorage.");
           }
       });
+
       // Handle Add button
       document.getElementById("addBtn").addEventListener("click", () => {
           const select = document.getElementById("productSelect");
@@ -165,6 +187,97 @@
           }
       });
 
-  </script>
+      // Clear Cart functionality
+      document.getElementById("clearCart").addEventListener("click", () => {
+          const cartBody = document.getElementById("cartBody");
+          const grandTotalEl = document.getElementById("grandTotal");
+          
+          cartBody.innerHTML = `<tr id="emptyRow"><td colspan="6" class="text-center text-muted">No items in cart.</td></tr>`;
+          grandTotalEl.textContent = "$0.00";
+          
+          // Hide the order details section when cart is cleared
+          document.getElementById("orderDetails").style.display = "none";
+      });
+
+      // Checkout functionality - Display JSON
+      document.getElementById("checkoutBtn").addEventListener("click", () => {
+          const cartBody = document.getElementById("cartBody");
+          const emptyRow = document.getElementById("emptyRow");
+          const grandTotalEl = document.getElementById("grandTotal");
+          
+          // Check if cart is empty
+          if (emptyRow || cartBody.children.length === 0) {
+              alert("Your cart is empty. Please add items before checking out.");
+              return;
+          }
+
+          // Collect cart items data
+          const cartItems = [];
+          let totalAmount = 0;
+
+          cartBody.querySelectorAll("tr").forEach(tr => {
+              const cells = tr.querySelectorAll("td");
+              if (cells.length >= 5) {
+                  const productName = cells[0].textContent;
+                  const productId = cells[1].textContent;
+                  const price = parseFloat(cells[2].textContent.replace("$", ""));
+                  const quantity = parseInt(cells[3].textContent);
+                  const total = parseFloat(cells[4].textContent.replace("$", ""));
+                  
+                  cartItems.push({
+                      productId: productId,
+                      productName: productName,
+                      price: price,
+                      quantity: quantity,
+                      total: total
+                  });
+                  
+                  totalAmount += total;
+              }
+          });
+
+          // Create order object
+          const order = {
+              orderId: generateOrderId(),
+              orderDate: new Date().toISOString(),
+              items: cartItems,
+              grandTotal: totalAmount,
+              status: "pending"
+          };
+
+          // Display the order JSON
+          document.getElementById("resultArea").textContent = JSON.stringify(order, null, 2);
+          document.getElementById("orderDetails").style.display = "block";
+
+          // Optional: Save order to localStorage
+          saveOrderToLocalStorage(order);
+
+          // Show success message
+          alert(`Checkout successful! Order #${order.orderId} has been created.`);
+      });
+
+      // Helper function to generate a simple order ID
+      function generateOrderId() {
+          return 'ORD-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+      }
+
+      // Helper function to save order to localStorage
+      function saveOrderToLocalStorage(order) {
+          try {
+              // Get existing orders or initialize empty array
+              const existingOrders = JSON.parse(localStorage.getItem("orders") || "[]");
+              
+              // Add new order
+              existingOrders.push(order);
+              
+              // Save back to localStorage
+              localStorage.setItem("orders", JSON.stringify(existingOrders));
+              
+              console.log("Order saved to localStorage:", order.orderId);
+          } catch (error) {
+              console.error("Error saving order to localStorage:", error);
+          }
+      }
+    </script>
   </body>
 </html>
