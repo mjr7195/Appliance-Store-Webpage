@@ -128,12 +128,80 @@
             </div>
         </section>
 
+        <!-- Product Details JSON Display -->
         <section class="mt-4">
             <h2 class="h5">Product Details</h2>
             <pre id="resultArea" class="bg-light p-3 border rounded">JSON</pre>
         </section>
     </div>
+
     <script>
+    // Initialize with default products if none exist
+    function initializeDefaultProducts() {
+        const defaultProducts = [
+            {
+                id: "100",
+                name: "Smart Refrigerator",
+                description: "AI powered refrigerator",
+                category: "Refrigerators",
+                uom: "Each",
+                price: "2000",
+                weight: "1500"
+            },
+            {
+                id: "200", 
+                name: "Smart Front Load Washer",
+                description: "AI powered Washer",
+                category: "Washers",
+                uom: "Each",
+                price: "500",
+                weight: "350"
+            },
+            {
+                id: "300",
+                name: "Smart Dryer",
+                description: "AI powered dryer",
+                category: "Dryers", 
+                uom: "Each",
+                price: "700",
+                weight: "250"
+            },
+            {
+                id: "4",
+                name: "SmartMicrowave",
+                description: "AI powered microwave",
+                category: "Microwaves",
+                uom: "Each",
+                price: "250",
+                weight: "50"
+            },
+            {
+                id: "500",
+                name: "Smart Lightbuld"
+                description: "AI powered lightbulds",
+                category: "Accessories",
+                uom: "Box",
+                price: "50",
+                weight: "5"
+            }
+        ];
+
+        // Check if products exist in localStorage
+        const existingProducts = JSON.parse(localStorage.getItem('products')) || [];
+        
+        // If no products exist, initialize with default products
+        if (existingProducts.length === 0) {
+            localStorage.setItem('products', JSON.stringify(defaultProducts));
+            console.log('Default products initialized');
+        }
+    }
+
+    // Call this function when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeDefaultProducts();
+    });
+
+    // Rest of your existing JavaScript code...
     // Go back home
     document.getElementById('returnHome').addEventListener('click', function () {
         window.location.href = 'index.html';
