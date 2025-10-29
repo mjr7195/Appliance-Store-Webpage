@@ -42,6 +42,12 @@
 
         /* Form layout tweaks */
         .form-control:focus{box-shadow:0 0 0 0.15rem rgba(13,110,253,0.12);border-color:var(--accent)}
+        
+        /* Reset button styling */
+        .btn-warning {
+            background-color: #ffc107;
+            border-color: #ffc107;
+        }
     </style>
 </head>
 <body>
@@ -103,6 +109,7 @@
 
             <div class="col-12">
                 <button type="submit" class="btn btn-primary">Submit New Product</button>
+                <button type="button" class="btn btn-warning ms-2" id="resetProducts">Reset to Default Products</button>
             </div>
 
             <div class="col-12 d-flex justify-content-between">
@@ -136,69 +143,85 @@
     </div>
 
     <script>
+    // Define default products
+    const defaultProducts = [
+        {
+            id: "100",
+            name: "Smart Refrigerator",
+            description: "AI powered refrigerator",
+            category: "Refrigerators",
+            uom: "Each",
+            price: "2000",
+            weight: "1500"
+        },
+        {
+            id: "200", 
+            name: "Smart Front Load Washer",
+            description: "AI powered Washer",
+            category: "Washers",
+            uom: "Each",
+            price: "500",
+            weight: "350"
+        },
+        {
+            id: "300",
+            name: "Smart Dryer",
+            description: "AI powered dryer",
+            category: "Dryers", 
+            uom: "Each",
+            price: "700",
+            weight: "250"
+        },
+        {
+            id: "400",
+            name: "SmartMicrowave",
+            description: "AI powered microwave",
+            category: "Microwaves",
+            uom: "Each",
+            price: "250",
+            weight: "50"
+        },
+        {
+            id: "500",
+            name: "Smart Lightbuld",
+            description: "AI powered lightbulds",
+            category: "Accessories",
+            uom: "Box",
+            price: "50",
+            weight: "5"
+        }
+    ];
+
     // Initialize with default products if none exist
     function initializeDefaultProducts() {
-        const defaultProducts = [
-            {
-                id: "100",
-                name: "Smart Refrigerator",
-                description: "AI powered refrigerator",
-                category: "Refrigerators",
-                uom: "Each",
-                price: "2000",
-                weight: "1500"
-            },
-            {
-                id: "200", 
-                name: "Smart Front Load Washer",
-                description: "AI powered Front Load Washer",
-                category: "Washers",
-                uom: "Each",
-                price: "500",
-                weight: "300"
-            },
-            {
-                id: "300",
-                name: "Smart Electric Dryer",
-                description: "AI powered dryer",
-                category: "Dryers", 
-                uom: "Each",
-                price: "700",
-                weight: "350"
-            },
-            {
-                id: "400",
-                name: "Smart Microwave",
-                description: "AI poweredMicrowave",
-                category: "Microwaves",
-                uom: "Each",
-                price: "250",
-                weight: "50"
-            },
-            {
-                id: "500",
-                name: "Smart light buld",
-                description: "6 pack of AI powered light bulds",
-                category: "Accessories",
-                uom: "Box",
-                price: "50",
-                weight: "5"
-            }
-        ];
-
         // Check if products exist in localStorage
-        const existingProducts = JSON.parse(localStorage.getItem('products')) || [];
+        const existingProducts = JSON.parse(localStorage.getItem('products'));
         
-        // If no products exist, initialize with default products
-        if (existingProducts.length === 0) {
+        // If no products exist or it's empty, initialize with default products
+        if (!existingProducts || existingProducts.length === 0) {
             localStorage.setItem('products', JSON.stringify(defaultProducts));
             console.log('Default products initialized');
+            alert('Default AI-powered products have been loaded!');
+        } else {
+            console.log('Products already exist in localStorage');
+        }
+    }
+
+    // Reset to default products
+    function resetToDefaultProducts() {
+        if (confirm('This will replace all existing products with the default AI-powered products. Continue?')) {
+            localStorage.setItem('products', JSON.stringify(defaultProducts));
+            alert('Products reset to default AI-powered products!');
+            location.reload(); // Refresh to show the changes
         }
     }
 
     // Call this function when the page loads
     document.addEventListener('DOMContentLoaded', function() {
         initializeDefaultProducts();
+        
+        // Add reset button functionality
+        document.getElementById('resetProducts').addEventListener('click', resetToDefaultProducts);
     });
 
     // Go back home
