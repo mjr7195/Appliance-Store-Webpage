@@ -79,8 +79,11 @@
       </div>
 
       <div class="d-flex justify-content-between">
-        <button id="clearCart" class="btn btn-outline-secondary">Clear Cart</button>
-        <button id="checkoutBtn" class="btn btn-success">Checkout</button>
+          <button id="clearCart" class="btn btn-outline-secondary">Clear Cart</button>
+          <div>
+              <button id="showJsonBtn" class="btn btn-info me-2">Show Cart JSON</button>
+              <button id="checkoutBtn" class="btn btn-success">Checkout</button>
+          </div>
       </div>
 
       <!-- Order Details JSON Display Section -->
@@ -203,8 +206,7 @@
       document.getElementById("checkoutBtn").addEventListener("click", () => {
           const cartBody = document.getElementById("cartBody");
           const emptyRow = document.getElementById("emptyRow");
-          const grandTotalEl = document.getElementById("grandTotal");
-          
+
           // Check if cart is empty
           if (emptyRow || cartBody.children.length === 0) {
               alert("Your cart is empty. Please add items before checking out.");
@@ -223,7 +225,7 @@
                   const price = parseFloat(cells[2].textContent.replace("$", ""));
                   const quantity = parseInt(cells[3].textContent);
                   const total = parseFloat(cells[4].textContent.replace("$", ""));
-                  
+
                   cartItems.push({
                       productId: productId,
                       productName: productName,
@@ -231,30 +233,31 @@
                       quantity: quantity,
                       total: total
                   });
-                  
+
                   totalAmount += total;
               }
           });
 
-          // Create order object
-          const order = {
+          // Create a temporary order object
+          const tempOrder = {
               orderId: generateOrderId(),
               orderDate: new Date().toISOString(),
               items: cartItems,
               grandTotal: totalAmount,
-              status: "pending"
+              status: "awaiting-shipping"
           };
 
-          // Display the order JSON
-          document.getElementById("resultArea").textContent = JSON.stringify(order, null, 2);
-          document.getElementById("orderDetails").style.display = "block";
+          // Save temporary order data to localStorage (not final submission)
+          localStorage.setItem("tempOrder", JSON.stringify(tempOrder));
 
-          // Optional: Save order to localStorage
-          saveOrderToLocalStorage(order);
+          // Also store just the cart items for later restoration
+          localStorage.setItem("cartData", JSON.stringify(cartItems));
 
-          // Show success message
-          alert(`Checkout successful! Order #${order.orderId} has been created.`);
+          // Redirect to shipping selection page
+          window.location.href = "ShippingSelectionWebPage.html";
+
       });
+
 
       // Helper function to generate a simple order ID
       function generateOrderId() {
@@ -278,6 +281,76 @@
               console.error("Error saving order to localStorage:", error);
           }
       }
+      // Restore cart if returning from shipping
+      document.addEventListener("DOMContentLoaded", () => {
+          if (sessionStorage.getItem("restoreCart") === "true") {
+              const cartData = JSON.parse(localStorage.getItem("cartData") || "[]");
+              if (cartData.length > 0) {
+                  const cartBody = document.getElementById("cartBody");
+                  const grandTotalEl = document.getElementById("grandTotal");
+                  let totalSum = 0;
+
+                  // Clear existing cart rows
+                  cartBody.innerHTML = "";
+
+                  // Rebuild each cart row
+                  cartData.forEach(item => {
+                      const row = document.createElement("tr");
+                      row.innerHTML = `
+                    <td>${item.productName}</td>
+                    <td>${item.productId}</td>
+                    <td class="text-end">$${item.price.toFixed(2)}</td>
+                    <td class="text-center">${item.quantity}</td>
+                    <td class="text-end">$${item.total.toFixed(2)}</td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-outline-danger removeBtn">Remove</button>
+                    </td>
+                `;
+                      cartBody.appendChild(row);
+                      totalSum += item.total;
+
+                      // Add remove button functionality
+                      row.querySelector(".removeBtn").addEventListener("click", () => {
+                          row.remove();
+                          updateGrandTotal();
+                      });
+                  });
+
+                  grandTotalEl.textContent = `$${totalSum.toFixed(2)}`;
+              }
+
+              // Clear flag to prevent reloading multiple times
+              sessionStorage.removeItem("restoreCart");
+          }
+
+          function updateGrandTotal() {
+              const grandTotalEl = document.getElementById("grandTotal");
+              let totalSum = 0;
+              document.querySelectorAll("#cartBody tr").forEach(tr => {
+                  const cell = tr.querySelector("td:nth-child(5)");
+                  if (cell && cell.textContent.startsWith("$")) {
+                      totalSum += parseFloat(cell.textContent.replace("$", ""));
+                  }
+              });
+              grandTotalEl.textContent = `$${totalSum.toFixed(2)}`;
+          }
+      });
+      // Show JSON button functionality
+      document.getElementById("showJsonBtn").addEventListener("click", () => {
+          const cartData = JSON.parse(localStorage.getItem("cartData") || "[]");
+          const orderDetailsSection = document.getElementById("orderDetails");
+          const resultArea = document.getElementById("resultArea");
+
+          if (cartData.length === 0) {
+              alert("Cart is empty. Add items first.");
+              return;
+          }
+
+          // Display cart JSON
+          resultArea.textContent = JSON.stringify(cartData, null, 2);
+          orderDetailsSection.style.display = "block";
+      });
+
     </script>
   </body>
 </html>
