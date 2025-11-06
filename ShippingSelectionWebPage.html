@@ -2,6 +2,7 @@
 <html lang="en">
 <!--HTML, CSS, and Bootstrap, Author: Marcos Ruiz-->
 <!--Javascript and minor HTML done by: Alex Hammond-->
+<!--JSON file display and storage done by: Juan Crespo Jr.-->    
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,6 +16,18 @@
         h1{font-size:1.25rem;margin-bottom:8px}
         .lead{color:var(--muted);margin-bottom:12px}
         .form-label.required::after{content:" *";color:#d63384}
+        #shippingDetails {
+            margin-top: 30px;
+        }
+        #resultArea {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body ng-app="shippingApp">
@@ -70,12 +83,20 @@
                 </div>
             </div>
         </form>
+
+        <!-- Shipping Details JSON Display Section -->
+        <section id="shippingDetails" class="mt-4" style="display: none;">
+            <h3 class="h5">Shipping Details (JSON)</h3>
+            <pre id="resultArea" class="bg-light p-3 border rounded">Shipping details will appear here after submission</pre>
+        </section>
     </div>
+
     <script>
         const Zip = document.getElementById('zip');
         Zip.addEventListener('input', function() {
             this.value = this.value.replace(/\D/g, '').slice(0, 10);
         });
+
         // Handle shipping form submission
         document.getElementById("shippingForm").addEventListener("submit", function(e) {
             e.preventDefault();
@@ -103,21 +124,31 @@
 
             const shippingData = { address, city, state, zip, carrier, method };
 
-            // Add shipping info and update order status
-            tempOrder.shipping = shippingData;
-            tempOrder.status = "submitted";
+            // Create complete order object with shipping info
+            const completeOrder = {
+                ...tempOrder,
+                shipping: shippingData,
+                status: "submitted",
+                submittedDate: new Date().toISOString()
+            };
+
+            // Display the shipping JSON
+            document.getElementById("resultArea").textContent = JSON.stringify(completeOrder, null, 2);
+            document.getElementById("shippingDetails").style.display = "block";
 
             // Retrieve existing orders, append this one, then save
             const existingOrders = JSON.parse(localStorage.getItem("orders") || "[]");
-            existingOrders.push(tempOrder);
+            existingOrders.push(completeOrder);
             localStorage.setItem("orders", JSON.stringify(existingOrders));
 
             // Remove temporary order
             localStorage.removeItem("tempOrder");
 
-            // Confirmation and redirect
-            alert(`Order #${tempOrder.orderId} submitted successfully with shipping details!`);
-            window.location.href = "index.html";
+            // Show success message but don't redirect immediately
+            alert(`Order #${completeOrder.orderId} submitted successfully with shipping details!\n\nShipping JSON is displayed below.`);
+            
+            // Optional: Clear form after successful submission
+            // document.getElementById("shippingForm").reset();
         });
 
         document.getElementById('backToCheckout').addEventListener('click', (e) => {
