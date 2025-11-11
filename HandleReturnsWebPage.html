@@ -21,23 +21,23 @@
       <h1>Returns Info</h1>
     </header>
 
-    <form class="row g-3">
+    <form id="returnsForm" class="row g-3">
       <div class="col-12 col-md-4">
         <label class="form-label required">Order ID</label>
-        <input type="text" class="form-control" placeholder="Order ID">
+        <input type="text" class="form-control" id="orderID" placeholder="Order ID">
       </div>
       <div class="col-12 col-md-4">
         <label class="form-label required">Product ID</label>
-        <input type="text" class="form-control" placeholder="Product ID">
+        <input type="text" class="form-control" id="productID" placeholder="Product ID">
       </div>
       <div class="col-12 col-md-4">
         <label class="form-label required">Customer Email</label>
-        <input type="email" class="form-control" placeholder="customer@example.com">
+        <input type="email" class="form-control" id="customerEmail" placeholder="customer@example.com">
       </div>
 
       <div class="col-12 col-md-6">
         <label class="form-label required">Return Reason</label>
-        <select class="form-select">
+        <select class="form-select" id="returnReason">
           <option>Defective</option>
           <option>Wrong Item Shipped</option>
           <option>Changed Mind</option>
@@ -45,7 +45,7 @@
         </select>
       </div>
       <div class="col-12 col-md-6">
-        <label class="form-label required">Return Type</label>
+        <label class="form-label required" id="returnType">Return Type</label>
         <select class="form-select">
           <option>Refund</option>
           <option>Replacement</option>
@@ -64,6 +64,39 @@
       </div>
     </form>
   </div>
+  <script>
+      document.getElementById("returnsForm").addEventListener("submit", function(e) {
+          e.preventDefault(); // stop default submit until validated
 
+          const orderID = document.getElementById("orderID").value.trim();
+          const productID = document.getElementById("productID").value.trim();
+          const email = document.getElementById("customerEmail").value.trim();
+          const reason = document.getElementById("returnReason").value;
+          const type = document.getElementById("returnType").value;
+
+          // Order ID → must be digits only
+          const orderIDPattern = /^[0-9]+$/;
+
+          // Email format
+          const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
+          // Validation logic
+          const allValid =
+              orderIDPattern.test(orderID) &&
+              productID !== "" &&
+              emailPattern.test(email) &&
+              reason !== "" &&
+              type !== "";
+
+          if (!allValid) {
+              alert("Please complete all required fields correctly before submitting.\n\n- Order ID must contain only numbers\n- Product ID cannot be empty\n- Email must be valid\n- Return Reason and Type must be selected");
+              return;
+          }
+
+          // ✅ If everything is valid
+          alert("Return recorded successfully!");
+          this.submit();
+      });
+  </script>
 </body>
 </html>
