@@ -12,6 +12,18 @@
     h1{font-size:1.25rem;margin-bottom:8px}
     .lead{color:var(--muted);margin-bottom:12px}
     .form-label.required::after{content:" *";color:#d63384}
+    #returnDetails {
+        margin-top: 30px;
+    }
+    #resultArea {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 5px;
+        padding: 15px;
+        margin-top: 10px;
+        max-height: 300px;
+        overflow-y: auto;
+    }
   </style>
 </head>
 <body>
@@ -38,6 +50,7 @@
       <div class="col-12 col-md-6">
         <label class="form-label required">Return Reason</label>
         <select class="form-select" id="returnReason">
+          <option value="">-- Select Reason --</option>
           <option>Defective</option>
           <option>Wrong Item Shipped</option>
           <option>Changed Mind</option>
@@ -45,8 +58,9 @@
         </select>
       </div>
       <div class="col-12 col-md-6">
-        <label class="form-label required" id="returnType">Return Type</label>
-        <select class="form-select">
+        <label class="form-label required">Return Type</label>
+        <select class="form-select" id="returnType">
+          <option value="">-- Select Type --</option>
           <option>Refund</option>
           <option>Replacement</option>
           <option>Store Credit</option>
@@ -55,7 +69,7 @@
 
       <div class="col-12">
         <label class="form-label">Comments / Notes</label>
-        <textarea class="form-control" rows="4" placeholder="Add notes about the return"></textarea>
+        <textarea class="form-control" id="comments" rows="4" placeholder="Add notes about the return"></textarea>
       </div>
 
       <div class="col-12 text-end mt-2">
@@ -63,7 +77,14 @@
         <button type="submit" class="btn btn-primary">Record Return</button>
       </div>
     </form>
+
+    <!-- Return Details JSON Display Section -->
+    <section id="returnDetails" class="mt-4" style="display: none;">
+      <h3 class="h5">Return Details (JSON)</h3>
+      <pre id="resultArea" class="bg-light p-3 border rounded">Return details will appear here after submission</pre>
+    </section>
   </div>
+
   <script>
       document.getElementById("returnsForm").addEventListener("submit", function(e) {
           e.preventDefault(); // stop default submit until validated
@@ -73,6 +94,7 @@
           const email = document.getElementById("customerEmail").value.trim();
           const reason = document.getElementById("returnReason").value;
           const type = document.getElementById("returnType").value;
+          const comments = document.getElementById("comments").value.trim();
 
           // Order ID → must be digits only
           const orderIDPattern = /^[0-9]+$/;
@@ -93,9 +115,47 @@
               return;
           }
 
-          // ✅ If everything is valid
-          alert("Return recorded successfully!");
-          this.submit();
+          // Create return data object
+          const returnData = {
+              returnId: "RET-" + Date.now() + "-" + Math.floor(Math.random() * 1000),
+              orderId: orderID,
+              productId: productID,
+              customerEmail: email,
+              returnDetails: {
+                  reason: reason,
+                  type: type,
+                  comments: comments || "No comments provided"
+              },
+              status: "pending",
+              submittedDate: new Date().toISOString(),
+              processedDate: null,
+              resolution: "awaiting_processing"
+          };
+
+          // Display the return JSON
+          document.getElementById("resultArea").textContent = JSON.stringify(returnData, null, 2);
+          document.getElementById("returnDetails").style.display = "block";
+
+          // Save to localStorage
+          const existingReturns = JSON.parse(localStorage.getItem("returnRecords") || "[]");
+          existingReturns.push(returnData);
+          localStorage.setItem("returnRecords", JSON.stringify(existingReturns));
+
+          // ✅ Show success message
+          alert("Return recorded successfully!\n\nReturn JSON is displayed below.");
+
+          // Optional: Clear form after successful submission
+          // document.getElementById("returnsForm").reset();
+      });
+
+      // Add input validation for Order ID (numbers only)
+      document.getElementById("orderID").addEventListener("input", function(e) {
+          e.target.value = e.target.value.replace(/\D/g, '');
+      });
+
+      // Add input validation for Product ID (alphanumeric)
+      document.getElementById("productID").addEventListener("input", function(e) {
+          e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
       });
   </script>
 </body>
