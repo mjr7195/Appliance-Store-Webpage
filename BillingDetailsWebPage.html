@@ -12,6 +12,18 @@
     h1{font-size:1.25rem;margin-bottom:8px}
     .lead{color:var(--muted);margin-bottom:12px}
     .form-label.required::after{content:" *";color:#d63384}
+    #billingDetails {
+        margin-top: 30px;
+    }
+    #resultArea {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 5px;
+        padding: 15px;
+        margin-top: 10px;
+        max-height: 300px;
+        overflow-y: auto;
+    }
   </style>
 </head>
 <body>
@@ -57,7 +69,7 @@
         </div>
         <div class="col-6 col-md-3">
             <label class="form-label">Save Card</label>
-            <select class="form-select">
+            <select id="saveCard" class="form-select">
                 <option>No</option>
                 <option>Yes</option>
             </select>
@@ -88,6 +100,12 @@
             <button type="submit" class="btn btn-primary">Continue</button>
         </div>
     </form>
+
+    <!-- Billing Details JSON Display Section -->
+    <section id="billingDetails" class="mt-4" style="display: none;">
+        <h3 class="h5">Billing Details (JSON)</h3>
+        <pre id="resultArea" class="bg-light p-3 border rounded">Billing details will appear here after submission</pre>
+    </section>
 </div>
 
 <script>
@@ -99,6 +117,7 @@
         const month = document.getElementById("expMonth").value;
         const year = document.getElementById("expYear").value;
         const cvv = document.getElementById("cvv").value.trim();
+        const saveCard = document.getElementById("saveCard").value;
         const street = document.getElementById("street").value.trim();
         const city = document.getElementById("city").value.trim();
         const state = document.getElementById("state").value.trim();
@@ -111,7 +130,7 @@
         }
 
         // ✅ Check numeric-only fields
-        if (!/^[0-9]+$/.test(number)) {
+        if (!/^[0-9\s]+$/.test(number.replace(/\s/g, ''))) {
             alert("Card Number must contain digits only.");
             return;
         }
@@ -124,9 +143,66 @@
             return;
         }
 
-        // ✅ If everything is valid
-        alert("Billing details successfully submitted!");
-        // Optionally: event.target.submit();  // allow submission
+        // Create billing data object
+        const billingData = {
+            payment: {
+                cardholderName: name,
+                cardNumber: "**** **** **** " + number.slice(-4), // Mask card number for security
+                expiry: month + "/" + year,
+                cvv: "***" // Mask CVV for security
+            },
+            billingAddress: {
+                street: street,
+                city: city,
+                state: state,
+                zip: zip
+            },
+            preferences: {
+                saveCard: saveCard
+            },
+            submittedDate: new Date().toISOString(),
+            billingId: "BIL-" + Date.now() + "-" + Math.floor(Math.random() * 1000)
+        };
+
+        // Display the billing JSON
+        document.getElementById("resultArea").textContent = JSON.stringify(billingData, null, 2);
+        document.getElementById("billingDetails").style.display = "block";
+
+        // Save to localStorage (optional)
+        const existingBilling = JSON.parse(localStorage.getItem("billingRecords") || "[]");
+        existingBilling.push(billingData);
+        localStorage.setItem("billingRecords", JSON.stringify(existingBilling));
+
+        // ✅ Show success message
+        alert("Billing details successfully submitted!\n\nBilling JSON is displayed below.");
+
+        // Optional: Clear form after successful submission
+        // document.getElementById("billingForm").reset();
+    });
+
+    // Add input formatting for card number
+    document.getElementById("cardNumber").addEventListener("input", function(e) {
+        let value = e.target.value.replace(/\s/g, '').replace(/\D/g, '');
+        let formattedValue = '';
+        
+        for (let i = 0; i < value.length; i++) {
+            if (i > 0 && i % 4 === 0) {
+                formattedValue += ' ';
+            }
+            formattedValue += value[i];
+        }
+        
+        e.target.value = formattedValue.slice(0, 19); // Limit to 16 digits + 3 spaces
+    });
+
+    // Add input formatting for CVV
+    document.getElementById("cvv").addEventListener("input", function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+    });
+
+    // Add input formatting for ZIP
+    document.getElementById("zip").addEventListener("input", function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 5);
     });
 </script>
 </body>
