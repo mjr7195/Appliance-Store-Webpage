@@ -1,10 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="returnsApp">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Handle Returns - Appliance World</title>
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- AngularJS -->
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+
   <style>
     :root{--bg:#f8f9fb;--card:#fff;--muted:#6c757d}
     body{background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial;padding:28px 12px}
@@ -12,9 +17,7 @@
     h1{font-size:1.25rem;margin-bottom:8px}
     .lead{color:var(--muted);margin-bottom:12px}
     .form-label.required::after{content:" *";color:#d63384}
-    #returnDetails {
-        margin-top: 30px;
-    }
+    #returnDetails { margin-top: 30px; }
     #resultArea {
         background: #f8f9fa;
         border: 1px solid #e9ecef;
@@ -26,14 +29,15 @@
     }
   </style>
 </head>
-<body>
+
+<body ng-controller="ReturnsController">
 
   <div class="card-area">
     <header class="mb-3">
       <h1>Returns Info</h1>
     </header>
 
-    <form id="returnsForm" class="row g-3">
+    <form id="returnsForm" class="row g-3" ng-submit="submitReturn($event)">
       <div class="col-12 col-md-4">
         <label class="form-label required">Order ID</label>
         <input type="text" class="form-control" id="orderID" placeholder="Order ID">
@@ -85,24 +89,24 @@
     </section>
   </div>
 
+  <!-- AngularJS Controller -->
   <script>
-      document.getElementById("returnsForm").addEventListener("submit", function(e) {
-          e.preventDefault(); // stop default submit until validated
+  angular.module("returnsApp", [])
+  .controller("ReturnsController", function($scope, $http) {
 
-          const orderID = document.getElementById("orderID").value.trim();
-          const productID = document.getElementById("productID").value.trim();
-          const email = document.getElementById("customerEmail").value.trim();
-          const reason = document.getElementById("returnReason").value;
-          const type = document.getElementById("returnType").value;
-          const comments = document.getElementById("comments").value.trim();
+      $scope.submitReturn = function(event) {
+          event.preventDefault();
 
-          // Order ID → must be digits only
+          const orderID = orderID.value.trim();
+          const productID = productID.value.trim();
+          const email = customerEmail.value.trim();
+          const reason = returnReason.value;
+          const type = returnType.value;
+          const commentsVal = comments.value.trim();
+
           const orderIDPattern = /^[0-9]+$/;
-
-          // Email format
           const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
-          // Validation logic
           const allValid =
               orderIDPattern.test(orderID) &&
               productID !== "" &&
@@ -115,7 +119,6 @@
               return;
           }
 
-          // Create return data object
           const returnData = {
               returnId: "RET-" + Date.now() + "-" + Math.floor(Math.random() * 1000),
               orderId: orderID,
@@ -124,7 +127,7 @@
               returnDetails: {
                   reason: reason,
                   type: type,
-                  comments: comments || "No comments provided"
+                  comments: commentsVal || "No comments provided"
               },
               status: "pending",
               submittedDate: new Date().toISOString(),
@@ -132,31 +135,32 @@
               resolution: "awaiting_processing"
           };
 
-          // Display the return JSON
-          document.getElementById("resultArea").textContent = JSON.stringify(returnData, null, 2);
-          document.getElementById("returnDetails").style.display = "block";
+          // Show JSON locally
+          resultArea.textContent = JSON.stringify(returnData, null, 2);
+          returnDetails.style.display = "block";
 
-          // Save to localStorage
+          // Save to localStorage (unchanged)
           const existingReturns = JSON.parse(localStorage.getItem("returnRecords") || "[]");
           existingReturns.push(returnData);
           localStorage.setItem("returnRecords", JSON.stringify(existingReturns));
 
-          // ✅ Show success message
-          alert("Return recorded successfully!\n\nReturn JSON is displayed below.");
-
-          // Optional: Clear form after successful submission
-          // document.getElementById("returnsForm").reset();
-      });
-
-      // Add input validation for Order ID (numbers only)
-      document.getElementById("orderID").addEventListener("input", function(e) {
-          e.target.value = e.target.value.replace(/\D/g, '');
-      });
-
-      // Add input validation for Product ID (alphanumeric)
-      document.getElementById("productID").addEventListener("input", function(e) {
-          e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
-      });
+          // Send to Node/Mongo REST API
+          $http.post("https://ist256.up.ist.psu.edu:3008/api/returns", returnData)
+              .then(res => {
+                  alert("✅ Return record saved to MongoDB!");
+              })
+              .catch(err => {
+                  alert("❌ Error saving return: " + err.message);
+              });
+      };
+  });
   </script>
+
+  <!-- Input formatting scripts (unchanged) -->
+  <script>
+      orderID.addEventListener("input", e => e.target.value = e.target.value.replace(/\D/g, ''));
+      productID.addEventListener("input", e => e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, ''));
+  </script>
+
 </body>
 </html>
