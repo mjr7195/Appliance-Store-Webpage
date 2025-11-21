@@ -15,13 +15,15 @@ const options = {
 
 // Middleware
 app.use(bodyParser.json());
+
+// Serve static files (HTML/CSS/Images) from the 'public' folder
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Import billing and returns routes
 const billingRoutes = require('./App_BillingReturns');
 app.use(billingRoutes);
 
-// Default route
+// Default route (optional test)
 app.get('/hello', (req, res) => {
   res.send('Hello from Appliance World Team 8!');
 });
