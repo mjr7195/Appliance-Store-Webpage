@@ -4,38 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - Appliance Store</title>
-    <!-- Official Bootstrap Theme -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {
-            background: #f4f4f440;
-        }
+        body { background: #f4f4f440; }
         .signup-container {
-            max-width: 600px; 
-            margin: 60px auto;
-            padding: 32px 28px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+            max-width: 600px; margin: 60px auto; padding: 32px 28px;
+            background: #fff; border-radius: 8px; box-shadow: 0 2px 16px rgba(0,0,0,0.08);
             border: 1px solid #ccc;
         }
-        .signup-title {
-            font-weight: 600;
-            margin-bottom: 24px;
-            text-align: center;
-            color: #2c3e50;
-        }
-        #userDetails {
-            margin-top: 30px;
-        }
+        .signup-title { font-weight: 600; margin-bottom: 24px; text-align: center; color: #2c3e50; }
+        #userDetails { margin-top: 30px; }
         #resultArea {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 5px;
-            padding: 15px;
-            margin-top: 10px;
-            max-height: 300px;
-            overflow-y: auto;
+            background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 5px;
+            padding: 15px; margin-top: 10px; max-height: 300px; overflow-y: auto;
         }
     </style>
 </head>
@@ -69,162 +50,71 @@
             </div>
         </form>
 
-        <!-- User Details JSON Display Section -->
         <section id="userDetails" class="mt-4" style="display: none;">
             <h3 class="h5">New User Details (JSON)</h3>
             <pre id="resultArea" class="bg-light p-3 border rounded">User details will appear here after sign up</pre>
         </section>
     </div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Initial users data (from your JSON file)
-        const initialUsers = {
-            "users": [
-                {
-                    "username": "alice123",
-                    "email": "alice@example.com",
-                    "password": "p@ssw0rd!"
-                },
-                {
-                    "username": "bob456",
-                    "email": "bob@example.org",
-                    "password": "S3cur3P@ss"
-                }
-            ]
-        };
-
-        // Initialize users in localStorage if not already present
-        if (!localStorage.getItem('users')) {
-            localStorage.setItem('users', JSON.stringify(initialUsers));
-        }
-
         document.getElementById('signupForm').addEventListener('submit', function(e) {
             e.preventDefault();
             let valid = true;
 
-            // Get fields
             const username = document.getElementById('username');
             const email = document.getElementById('email');
             const password = document.getElementById('password');
             const confirmPassword = document.getElementById('confirm-password');
-
-            // Error elements
-            const usernameError = document.getElementById('usernameError');
-            const emailError = document.getElementById('emailError');
-            const passwordError = document.getElementById('passwordError');
-            const confirmPasswordError = document.getElementById('confirmPasswordError');
-
+            
             // Reset errors
-            [username, email, password, confirmPassword].forEach(input => {
-                input.classList.remove('is-invalid');
-            });
-            [usernameError, emailError, passwordError, confirmPasswordError].forEach(el => {
-                el.textContent = '';
-            });
-
-            // Username validation
-            if (!username.value.trim()) {
-                valid = false;
-                username.classList.add('is-invalid');
-                usernameError.textContent = 'Username is required.';
-            }
-
-            // Email validation
+            [username, email, password, confirmPassword].forEach(input => input.classList.remove('is-invalid'));
+            
+            // Validation Logic (Same as before)
+            if (!username.value.trim()) { valid = false; username.classList.add('is-invalid'); document.getElementById('usernameError').textContent = 'Username is required.'; }
+            
             const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!email.value.trim()) {
-                valid = false;
-                email.classList.add('is-invalid');
-                emailError.textContent = 'Email is required.';
-            } else if (!emailPattern.test(email.value.trim())) {
-                valid = false;
-                email.classList.add('is-invalid');
-                emailError.textContent = 'Please enter a valid email (e.g. joe@test.com).';
-            }
+            if (!email.value.trim()) { valid = false; email.classList.add('is-invalid'); document.getElementById('emailError').textContent = 'Email is required.'; }
+            else if (!emailPattern.test(email.value.trim())) { valid = false; email.classList.add('is-invalid'); document.getElementById('emailError').textContent = 'Invalid email.'; }
 
-            // Password validation
-            if (!password.value) {
-                valid = false;
-                password.classList.add('is-invalid');
-                passwordError.textContent = 'Password is required.';
-            }
+            if (!password.value) { valid = false; password.classList.add('is-invalid'); document.getElementById('passwordError').textContent = 'Password required.'; }
+            if (password.value && confirmPassword.value !== password.value) { valid = false; confirmPassword.classList.add('is-invalid'); document.getElementById('confirmPasswordError').textContent = 'Passwords do not match.'; }
 
-            // Confirm Password validation
-            if (!confirmPassword.value) {
-                valid = false;
-                confirmPassword.classList.add('is-invalid');
-                confirmPasswordError.textContent = 'Please confirm your password.';
-            } else if (password.value && confirmPassword.value !== password.value) {
-                valid = false;
-                confirmPassword.classList.add('is-invalid');
-                confirmPasswordError.textContent = 'Passwords do not match.';
-            }
-
-            // If valid, process the form
             if (valid) {
-                try {
-                    // Get existing users from localStorage
-                    const usersData = JSON.parse(localStorage.getItem('users'));
-                    
-                    // Check if username or email already exists
-                    const usernameExists = usersData.users.some(user => user.username === username.value.trim());
-                    const emailExists = usersData.users.some(user => user.email === email.value.trim());
-                    
-                    if (usernameExists) {
-                        username.classList.add('is-invalid');
-                        usernameError.textContent = 'Username already exists.';
-                        return;
+                const newUser = {
+                    username: username.value.trim(),
+                    email: email.value.trim(),
+                    password: password.value,
+                    joinedDate: new Date().toISOString()
+                };
+
+                // Display JSON
+                document.getElementById('resultArea').textContent = JSON.stringify(newUser, null, 2);
+                document.getElementById('userDetails').style.display = 'block';
+
+                // --- NEW: POST to MongoDB ---
+                fetch('/api/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newUser)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.status === 'success') {
+                        alert('✅ User registered and saved to MongoDB!');
+                        document.getElementById('signupForm').reset();
+                    } else {
+                        throw new Error(data.message);
                     }
-                    
-                    if (emailExists) {
-                        email.classList.add('is-invalid');
-                        emailError.textContent = 'Email already exists.';
-                        return;
-                    }
-                    
-                    // Create new user object
-                    const newUser = {
-                        username: username.value.trim(),
-                        email: email.value.trim(),
-                        password: password.value
-                    };
-                    
-                    // Add new user to users array
-                    usersData.users.push(newUser);
-                    
-                    // Save updated users back to localStorage
-                    localStorage.setItem('users', JSON.stringify(usersData));
-                    
-                    // Display the new user JSON at the bottom
-                    document.getElementById('resultArea').textContent = JSON.stringify(newUser, null, 2);
-                    document.getElementById('userDetails').style.display = 'block';
-                    
-                    // Show success message
-                    alert('User registered successfully!');
-                    
-                    // Reset the form but keep JSON displayed
-                    document.getElementById('signupForm').reset();
-                    
-                } catch (error) {
-                    console.error('Error saving user data:', error);
-                    alert('Error saving user data. Please try again.');
-                }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('❌ Error saving user: ' + error.message);
+                });
             }
         });
 
-        // Remove red border and error when user corrects input
-        ['username', 'email', 'password', 'confirm-password'].forEach(function(id) {
-            document.getElementById(id).addEventListener('input', function() {
-                this.classList.remove('is-invalid');
-                const errorDiv = document.getElementById(id === 'confirm-password' ? 'confirmPasswordError' : id + 'Error');
-                errorDiv.textContent = '';
-            });
-        });
-
-        document.getElementById('returnHome').addEventListener('click', function(){
-            window.location.href = "index.html";
-        });
+        document.getElementById('returnHome').addEventListener('click', function(){ window.location.href = "index.html"; });
     </script>
 </body>
 </html>

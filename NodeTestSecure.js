@@ -16,14 +16,20 @@ const options = {
 // Middleware
 app.use(bodyParser.json());
 
-// Serve static files (HTML/CSS/Images) from the 'public' folder
+// Serve static files from 'public' folder
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Import billing and returns routes
+// --- ROUTES ---
+
+// 1. Existing Billing & Returns Routes (Keep this!)
 const billingRoutes = require('./App_BillingReturns');
 app.use(billingRoutes);
 
-// Default route (optional test)
+// 2. NEW Management Routes (Signup, Products, Shoppers, Orders)
+const managementRoutes = require('./App_Management');
+app.use(managementRoutes);
+
+// Default route
 app.get('/hello', (req, res) => {
   res.send('Hello from Appliance World Team 8!');
 });
